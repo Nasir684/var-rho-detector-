@@ -1,0 +1,18 @@
+name: var_rho_detector
+description: Var-Rho EMI Detector DOI 10.5281/zenodo.23434145 — 262x EMI suppression
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sensors_plus: ^4.0.3
+  fl_chart: ^0.66.0
+  path_provider: ^2.1.2
+  share_plus: ^7.2.2
+
+flutter:
+  uses-material-design: true
