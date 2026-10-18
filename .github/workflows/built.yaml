@@ -1,0 +1,24 @@
+name: Build APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: stable
+      - name: Build APK
+        run: |
+          cd var-rho-detector-
+          ls -la
+          if [ ! -d "android" ]; then
+            flutter create . --org com.example --project-name var_rho_detector --platforms android --no-overwrite
+          fi
+          flutter pub get
+          flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Var-Rho-APK
+          path: var-rho-detector-/build/app/outputs/flutter-apk/*.apk
