@@ -8,26 +8,25 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.5'
-      - name: Find and fix project
+          channel: stable
+      - name: Fix project structure
         run: |
-          find . -name "pubspec.yaml" -exec echo Found at {} \;
           PUB=$(find . -name "pubspec.yaml" | head -1)
           DIR=$(dirname $PUB)
-          echo "Project at $DIR"
-          echo "DIR=$DIR" >> $GITHUB_ENV
-          ls -R
-      - name: Get packages
-        run: |
           cd $DIR
+          echo "Fixing in $DIR"
+          # Create android/ios if missing
+          if [ ! -d "android" ]; then
+            flutter create . --project-name var_rho_detector --org com.example --platforms=android
+          fi
           flutter pub get
-      - name: Build release APK
+          echo "DIR=$DIR" >> $GITHUB_ENV
+      - name: Build
         run: |
           cd $DIR
-          flutter build apk --release -v
+          flutter build apk --release
           ls -lh build/app/outputs/flutter-apk/
       - uses: actions/upload-artifact@v4
         with:
           name: Var-Rho-APK
-          path: |
-            **/app-release.apk
-            **/app-*.apk
+          path: ${{ env.DIR }}/build/app/outputs/flutter-apk/app-release.apk
