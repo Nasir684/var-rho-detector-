@@ -11,14 +11,24 @@ jobs:
           channel: stable
       - name: Build APK
         run: |
-          cd var-rho-detector-
+          echo "Finding pubspec..."
+          find . -type f -name "pubspec.yaml" | head -20
+          PUB=$(find . -type f -name "pubspec.yaml" | head -1)
+          echo "FOUND: $PUB"
+          DIR=$(dirname "$PUB")
+          echo "DIR: $DIR"
+          cd "$DIR"
+          pwd
           ls -la
           if [ ! -d "android" ]; then
             flutter create . --org com.example --project-name var_rho_detector --platforms android --no-overwrite
           fi
           flutter pub get
           flutter build apk --release
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: Var-Rho-APK
-          path: var-rho-detector-/build/app/outputs/flutter-apk/*.apk
+          path: |
+            **/build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/flutter-apk/*.apk
