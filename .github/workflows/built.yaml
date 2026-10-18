@@ -23,12 +23,12 @@ jobs:
           if [ ! -d "android" ]; then
             flutter create . --org com.example --project-name var_rho_detector --platforms android --no-overwrite
           fi
-          flutter pub get
+                    flutter pub get
           flutter build apk --release
+          flutter build apk --debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Var-Rho-APK
+          name: Var-Rho-APK-Fixed
           path: |
             **/build/app/outputs/flutter-apk/*.apk
-            build/app/outputs/flutter-apk/*.apk
