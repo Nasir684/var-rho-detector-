@@ -9,24 +9,26 @@ jobs:
         with:
           flutter-version: '3.24.5'
           channel: stable
-      - name: Fix project structure
+      - name: Build APK
         run: |
-          PUB=$(find . -name "pubspec.yaml" | head -1)
-          DIR=$(dirname $PUB)
-          cd $DIR
-          echo "Fixing in $DIR"
-          # Create android/ios if missing
+          PUB=$(find . -type f -name "pubspec.yaml" | head -1)
+          echo "Found $PUB"
+          DIR=$(dirname "$PUB")
+          cd "$DIR"
+          pwd
+          ls -la
+          # If android folder missing, create it without deleting your code
           if [ ! -d "android" ]; then
-            flutter create . --project-name var_rho_detector --org com.example --platforms=android
+            flutter create . --org com.example --project-name var_rho_detector --platforms android --no-overwrite
           fi
           flutter pub get
-          echo "DIR=$DIR" >> $GITHUB_ENV
-      - name: Build
-        run: |
-          cd $DIR
-          flutter build apk --release
-          ls -lh build/app/outputs/flutter-apk/
-      - uses: actions/upload-artifact@v4
+          flutter build apk --release --verbose
+      - name: Upload APK
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: Var-Rho-APK
-          path: ${{ env.DIR }}/build/app/outputs/flutter-apk/app-release.apk
+          path: |
+            **/build/app/outputs/flutter-apk/*.apk
+            **/*.apk
+          if-no-files-found: warn
