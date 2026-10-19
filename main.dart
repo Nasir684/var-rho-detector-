@@ -26,10 +26,14 @@ final r = VarRhoEngine.analyze(bufX, bufY);
 setState((){
 liveVar = r['Var']; liveRho = r['Rho'];
 if(r['pass']){
-status = "EMI DETECTED: latex
-{r['type']}"; statusColor = r['type'].toString().contains('global') ? Colors.red : Colors.orange; log.insert(0, {'time': DateTime.now().toString().substring(11,19), ...r}); if(log.length&gt;50) log.removeLast(); } else { status = "Clean — Var 
-
-{liveVar.toStringAsFixed(0)}"; statusColor = Colors.green; }
+status = "EMI DETECTED: ${r['type']}";
+statusColor = r['type'].toString().contains('global') ? Colors.red : Colors.orange;
+log.insert(0, {'time': DateTime.now().toString().substring(11,19), ...r});
+if(log.length>50) log.removeLast();
+} else {
+status = "Clean — Var ${liveVar.toStringAsFixed(0)}";
+statusColor = Colors.green;
+}
 });
 bufX.clear(); bufY.clear();
 }
@@ -41,21 +45,20 @@ switch(categoryIndex){
 case 0: return WorkshopToolScreen();
 case 1: return WorkshopToolScreen();
 case 2: return StudentLabScreen(liveLog: log);
-case 3: return HiddenDeviceScreen();
+case 3: return WorkshopToolScreen();
 default: return WorkshopToolScreen();
 }
 }
 
 @override Widget build(BuildContext ctx){
 return Scaffold(
-appBar: AppBar(title: Text("Var-Rho EMI Detector"), backgroundColor: Colors.black87,
-actions: [IconButton(icon: Icon(Icons.science), onPressed: ()=> Navigator.push(ctx, MaterialPageRoute(builder: (_)=> StudentLabScreen(liveLog: log))))]),
+appBar: AppBar(title: Text("Var-Rho EMI Detector"), backgroundColor: Colors.black87),
 body: Column(children: [
 Container(color: statusColor, width: double.infinity, padding: EdgeInsets.all(10), child: Text(status, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
 Container(height: 60, child: ListView(scrollDirection: Axis.horizontal, children: [
-Padding(padding: EdgeInsets.all(6), child: ChoiceChip(label: Text("Home FREE"), selected: categoryIndex0, onSelected: (_)=>setState(()=>categoryIndex=0))),
-Padding(padding: EdgeInsets.all(6), child: ChoiceChip(label: Text("Workshop $1.99"), selected: categoryIndex1, onSelected: ()=>setState(()=>categoryIndex=1))),
-Padding(padding: EdgeInsets.all(6), child: ChoiceChip(label: Text("Student Lab"), selected: categoryIndex==2, onSelected: ()=>setState(()=>categoryIndex=2))),
+Padding(padding: EdgeInsets.all(6), child: ChoiceChip(label: Text("Home FREE"), selected: categoryIndex==0, onSelected: (_)=>setState(()=>categoryIndex=0))),
+Padding(padding: EdgeInsets.all(6), child: ChoiceChip(label: Text("Workshop \$1.99"), selected: categoryIndex==1, onSelected: (_)=>setState(()=>categoryIndex=1))),
+Padding(padding: EdgeInsets.all(6), child: ChoiceChip(label: Text("Student Lab"), selected: categoryIndex==2, onSelected: (_)=>setState(()=>categoryIndex=2))),
 Padding(padding: EdgeInsets.all(6), child: ChoiceChip(label: Text("Hidden Device"), selected: categoryIndex==3, onSelected: (_)=>setState(()=>categoryIndex=3))),
  ])),
 Expanded(child: getScreen()),
