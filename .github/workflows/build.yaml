@@ -1,0 +1,51 @@
+name: Build Var-Rho APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: stable
+      - name: Fix structure
+        run: |
+          mkdir -p lib/categories
+          [ -f main.dart ] && mv main.dart lib/main.dart || true
+          [ -f var_rho_engine.dart ] && cp var_rho_engine.dart lib/ || true
+          [ -f student_lab.dart ] && cp student_lab.dart lib/categories/ || true
+          [ -f workshop_tool.dart ] && cp workshop_tool.dart lib/categories/ || true
+          [ -f lib/student_lab.dart ] && mv lib/student_lab.dart lib/categories/ || true
+          [ -f lib/workshop_tool.dart ] && mv lib/workshop_tool.dart lib/categories/ || true
+          
+          cat > pubspec.yaml << 'EOF'
+          name: var_rho_detector
+          description: Var Rho EMI Detector
+          publish_to: 'none'
+          version: 1.0.0+1
+          environment:
+            sdk: '>=3.0.0 <4.0.0'
+          dependencies:
+            flutter:
+              sdk: flutter
+            sensors_plus: ^4.0.2
+            cupertino_icons: ^1.0.2
+          flutter:
+            uses-material-design: true
+          EOF
+          
+          rm -rf android
+          flutter create . --org com.varrho.detector --project-name var_rho_detector --platforms android
+          flutter pub get
+          
+          # Fix your main.dart typos automatically
+          sed -i 's/categoryIndex0/categoryIndex==0/g' lib/main.dart
+          sed -i 's/categoryIndex1/categoryIndex==1/g' lib/main.dart
+          sed -i 's/categories\/student_lab.dart/categories\/student_lab.dart/g' lib/main.dart
+      - name: Build APK
+        run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Var-Rho-REAL
+          path: "**/build/app/outputs/flutter-apk/app-release.apk"
